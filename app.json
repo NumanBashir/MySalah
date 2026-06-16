@@ -6,6 +6,14 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Allow MySalah to use your location to calculate prayer times and Qibla direction."
+        }
+      ]
+    ],
     "ios": {
       "supportsTablet": true
     },

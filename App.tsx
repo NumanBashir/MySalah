@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import {
   Pressable,
   SafeAreaView,
@@ -9,9 +9,15 @@ import {
   View,
 } from 'react-native';
 
-import { mockPrayerTimes, settingsPreview } from './src/data/prayers';
+import { settingsPreview } from './src/data/settings';
+import { usePrayerTimes } from './src/hooks/usePrayerTimes';
 import { colors, radii, spacing, typography } from './src/theme';
-import type { PrayerName } from './src/types';
+import type {
+  LocationSource,
+  LocationStatus,
+  PrayerName,
+} from './src/types';
+import { formatTime } from './src/utils/date';
 
 type TabKey = 'today' | 'qibla' | 'settings';
 
@@ -32,42 +38,41 @@ const prayerLabels: Record<PrayerName, string> = {
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>('today');
-
-  const screen = useMemo(() => {
-    if (activeTab === 'qibla') {
-      return <QiblaScreen />;
-    }
-
-    if (activeTab === 'settings') {
-      return <SettingsScreen />;
-    }
-
-    return <TodayScreen />;
-  }, [activeTab]);
+  const prayerState = usePrayerTimes();
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar style="dark" />
       <View style={styles.appShell}>
-        <View style={styles.content}>{screen}</View>
+        <View style={styles.content}>
+          {activeTab === 'today' && <TodayScreen prayerState={prayerState} />}
+          {activeTab === 'qibla' && <QiblaScreen />}
+          {activeTab === 'settings' && (
+            <SettingsScreen prayerState={prayerState} />
+          )}
+        </View>
         <TabBar activeTab={activeTab} onSelectTab={setActiveTab} />
       </View>
     </SafeAreaView>
   );
 }
 
-function TodayScreen() {
+type PrayerState = ReturnType<typeof usePrayerTimes>;
+
+function TodayScreen({ prayerState }: { prayerState: PrayerState }) {
+  const { countdown, dates, location, schedule } = prayerState;
+
   return (
     <ScrollView
       contentContainerStyle={styles.screenContent}
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.header}>
-        <View>
-          <Text style={styles.location}>Copenhagen, Denmark</Text>
+        <View style={styles.headerTextGroup}>
+          <Text style={styles.location}>{location.label}</Text>
           <View style={styles.dateStack}>
-            <Text style={styles.hijriDateText}>1 Muharram</Text>
-            <Text style={styles.dateText}>Tuesday, June 16</Text>
+            <Text style={styles.hijriDateText}>{dates.hijri}</Text>
+            <Text style={styles.dateText}>{dates.gregorian}</Text>
           </View>
         </View>
       </View>
@@ -76,25 +81,68 @@ function TodayScreen() {
         <Text style={styles.eyebrow}>Next prayer</Text>
         <View style={styles.nextPrayerRow}>
           <View>
-            <Text style={styles.nextPrayerName}>Asr</Text>
-            <Text style={styles.countdown}>in 2h 14m</Text>
+            <Text style={styles.nextPrayerName}>
+              {prayerLabels[schedule.nextPrayerName]}
+            </Text>
+            <Text style={styles.countdown}>{countdown}</Text>
           </View>
-          <Text style={styles.nextPrayerTime}>17:34</Text>
+          <Text style={styles.nextPrayerTime}>
+            {formatTime(schedule.nextPrayerTime)}
+          </Text>
         </View>
       </View>
 
       <View style={styles.prayerList}>
-        {mockPrayerTimes.map((prayer) => (
+        {schedule.prayerTimes.map((prayer) => (
           <PrayerTimeRow
             key={prayer.name}
             name={prayerLabels[prayer.name]}
             time={prayer.time}
-            isNext={prayer.name === 'asr'}
+            isNext={prayer.name === schedule.activePrayerName}
           />
         ))}
       </View>
+
+      <View style={styles.infoBand}>
+        <Text style={styles.infoBandTitle}>Calculation</Text>
+        <Text style={styles.infoBandText}>
+          Muslim World League, Standard Asr, {schedule.highLatitudeRule} for
+          high-latitude days.
+        </Text>
+      </View>
     </ScrollView>
   );
+}
+
+function getLocationStatusText(
+  status: LocationStatus,
+  source: LocationSource,
+) {
+  if (status === 'loading') {
+    return 'Updating location';
+  }
+
+  if (status === 'permission-denied') {
+    return source === 'saved'
+      ? 'Using saved location; GPS permission denied'
+      : 'Using Copenhagen until GPS is allowed';
+  }
+
+  if (status === 'unavailable') {
+    return source === 'saved'
+      ? 'Using saved location; GPS unavailable'
+      : 'Using Copenhagen until GPS is available';
+  }
+
+  if (source === 'saved') {
+    return 'Using saved location';
+  }
+
+  if (source === 'default') {
+    return 'Using Copenhagen preview location';
+  }
+
+  return 'Using current location';
 }
 
 function PrayerTimeRow({
@@ -154,7 +202,14 @@ function QiblaScreen() {
   );
 }
 
-function SettingsScreen() {
+function SettingsScreen({ prayerState }: { prayerState: PrayerState }) {
+  const {
+    location,
+    locationSource,
+    locationStatus,
+    refreshLocation,
+  } = prayerState;
+
   return (
     <ScrollView
       contentContainerStyle={styles.screenContent}
@@ -165,6 +220,31 @@ function SettingsScreen() {
           <Text style={styles.screenTitle}>Settings</Text>
           <Text style={styles.screenSubtitle}>Simple defaults for v1.</Text>
         </View>
+      </View>
+
+      <View style={styles.locationPanel}>
+        <View style={styles.locationPanelHeader}>
+          <View style={styles.locationPanelTextGroup}>
+            <Text style={styles.settingLabel}>Location</Text>
+            <Text style={styles.settingDescription}>
+              {getLocationStatusText(locationStatus, locationSource)}
+            </Text>
+          </View>
+          <Pressable
+            accessibilityRole="button"
+            disabled={locationStatus === 'loading'}
+            onPress={refreshLocation}
+            style={[
+              styles.locationAction,
+              locationStatus === 'loading' && styles.locationActionDisabled,
+            ]}
+          >
+            <Text style={styles.locationActionText}>
+              {locationStatus === 'loading' ? 'Updating' : 'GPS'}
+            </Text>
+          </Pressable>
+        </View>
+        <Text style={styles.settingValue}>{location.label}</Text>
       </View>
 
       <View style={styles.settingsGroup}>
@@ -258,10 +338,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: spacing.lg,
   },
+  headerTextGroup: {
+    flex: 1,
+    paddingRight: spacing.md,
+  },
   location: {
     color: colors.text,
     fontSize: typography.title,
     fontWeight: '700',
+    lineHeight: 36,
   },
   dateText: {
     color: colors.mutedText,
@@ -275,6 +360,24 @@ const styles = StyleSheet.create({
     fontSize: typography.body,
     fontWeight: '700',
     marginBottom: spacing.xs,
+  },
+  locationAction: {
+    alignItems: 'center',
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+    borderRadius: radii.full,
+    borderWidth: 1,
+    justifyContent: 'center',
+    minHeight: 36,
+    paddingHorizontal: spacing.md,
+  },
+  locationActionDisabled: {
+    opacity: 0.6,
+  },
+  locationActionText: {
+    color: colors.accentDeep,
+    fontSize: typography.small,
+    fontWeight: '800',
   },
   nextPrayerPanel: {
     backgroundColor: colors.accent,
@@ -456,6 +559,24 @@ const styles = StyleSheet.create({
     borderRadius: radii.lg,
     borderWidth: 1,
     overflow: 'hidden',
+  },
+  locationPanel: {
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    marginBottom: spacing.lg,
+    padding: spacing.lg,
+  },
+  locationPanelHeader: {
+    alignItems: 'flex-start',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: spacing.md,
+  },
+  locationPanelTextGroup: {
+    flex: 1,
+    paddingRight: spacing.md,
   },
   settingRow: {
     borderBottomColor: colors.border,

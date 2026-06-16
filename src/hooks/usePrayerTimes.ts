@@ -1,10 +1,20 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { DEFAULT_LOCATION } from '../constants/location';
+import { DEFAULT_SETTINGS } from '../constants/settings';
 import { requestCurrentLocation } from '../services/location';
 import { calculatePrayerSchedule } from '../services/prayerTimes';
 import { loadSavedLocation, saveLocation } from '../storage/locationStorage';
-import type { LocationSource, LocationStatus, SavedLocation } from '../types';
+import { loadSettings, saveSettings } from '../storage/settingsStorage';
+import type {
+  AppSettings,
+  AsrMethod,
+  CalculationMethodKey,
+  LocationSource,
+  LocationStatus,
+  PrayerName,
+  SavedLocation,
+} from '../types';
 import {
   formatCountdown,
   formatGregorianDate,
@@ -18,6 +28,7 @@ export function usePrayerTimes() {
     useState<LocationSource>('default');
   const [locationStatus, setLocationStatus] =
     useState<LocationStatus>('loading');
+  const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
 
   const refreshLocation = useCallback(async () => {
     setLocationStatus('loading');
@@ -37,6 +48,67 @@ export function usePrayerTimes() {
     );
   }, []);
 
+  const persistSettings = useCallback((nextSettings: AppSettings) => {
+    setSettings(nextSettings);
+    void saveSettings(nextSettings);
+  }, []);
+
+  const updateCalculationMethod = useCallback(
+    (calculationMethod: CalculationMethodKey) => {
+      persistSettings({
+        ...settings,
+        calculationMethod,
+      });
+    },
+    [persistSettings, settings],
+  );
+
+  const updateAsrMethod = useCallback(
+    (asrMethod: AsrMethod) => {
+      persistSettings({
+        ...settings,
+        asrMethod,
+      });
+    },
+    [persistSettings, settings],
+  );
+
+  const updateOffset = useCallback(
+    (prayerName: PrayerName, offset: number) => {
+      persistSettings({
+        ...settings,
+        offsets: {
+          ...settings.offsets,
+          [prayerName]: Math.max(-60, Math.min(60, Math.round(offset))),
+        },
+      });
+    },
+    [persistSettings, settings],
+  );
+
+  const toggleNotifications = useCallback(() => {
+    persistSettings({
+      ...settings,
+      notifications: {
+        ...settings.notifications,
+        enabled: !settings.notifications.enabled,
+      },
+    });
+  }, [persistSettings, settings]);
+
+  const updateReminderMinutes = useCallback(
+    (reminderMinutes: number) => {
+      persistSettings({
+        ...settings,
+        notifications: {
+          ...settings.notifications,
+          reminderMinutes: Math.max(0, Math.min(60, Math.round(reminderMinutes))),
+        },
+      });
+    },
+    [persistSettings, settings],
+  );
+
   useEffect(() => {
     const timer = setInterval(() => {
       setNow(new Date());
@@ -51,7 +123,14 @@ export function usePrayerTimes() {
     let isMounted = true;
 
     async function loadLocation() {
-      const savedLocation = await loadSavedLocation();
+      const [savedLocation, savedSettings] = await Promise.all([
+        loadSavedLocation(),
+        loadSettings(),
+      ]);
+
+      if (isMounted) {
+        setSettings(savedSettings);
+      }
 
       if (savedLocation && isMounted) {
         setLocation(savedLocation);
@@ -78,8 +157,9 @@ export function usePrayerTimes() {
         date: now,
         latitude: location.latitude,
         longitude: location.longitude,
+        settings,
       }),
-    [location.latitude, location.longitude, now],
+    [location.latitude, location.longitude, now, settings],
   );
 
   return {
@@ -93,5 +173,11 @@ export function usePrayerTimes() {
     locationStatus,
     refreshLocation,
     schedule,
+    settings,
+    toggleNotifications,
+    updateAsrMethod,
+    updateCalculationMethod,
+    updateOffset,
+    updateReminderMinutes,
   };
 }

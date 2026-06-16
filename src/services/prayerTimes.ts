@@ -6,17 +6,15 @@ import {
   PrayerTimes,
 } from 'adhan';
 
-import type { PrayerName, PrayerSchedule, PrayerTime } from '../types';
+import { PRAYER_NAMES } from '../constants/settings';
+import type {
+  AppSettings,
+  CalculationMethodKey,
+  PrayerName,
+  PrayerSchedule,
+  PrayerTime,
+} from '../types';
 import { formatTime } from '../utils/date';
-
-const orderedPrayerNames: PrayerName[] = [
-  'fajr',
-  'sunrise',
-  'dhuhr',
-  'asr',
-  'maghrib',
-  'isha',
-];
 
 const highLatitudeRuleLabels: Record<string, string> = {
   middleofthenight: 'Middle of the night',
@@ -25,7 +23,7 @@ const highLatitudeRuleLabels: Record<string, string> = {
 };
 
 function toPrayerName(value: string): PrayerName | null {
-  return orderedPrayerNames.includes(value as PrayerName)
+  return PRAYER_NAMES.includes(value as PrayerName)
     ? (value as PrayerName)
     : null;
 }
@@ -35,7 +33,7 @@ function getTimestamp(prayerTimes: PrayerTimes, prayerName: PrayerName) {
 }
 
 function getPrayerTimes(prayerTimes: PrayerTimes): PrayerTime[] {
-  return orderedPrayerNames.map((name) => {
+  return PRAYER_NAMES.map((name) => {
     const timestamp = getTimestamp(prayerTimes, name);
 
     return {
@@ -46,16 +44,35 @@ function getPrayerTimes(prayerTimes: PrayerTimes): PrayerTime[] {
   });
 }
 
+function getCalculationParameters(method: CalculationMethodKey) {
+  switch (method) {
+    case 'MoonsightingCommittee':
+      return CalculationMethod.MoonsightingCommittee();
+    case 'UmmAlQura':
+      return CalculationMethod.UmmAlQura();
+    case 'Turkey':
+      return CalculationMethod.Turkey();
+    case 'Other':
+      return CalculationMethod.Other();
+    case 'MuslimWorldLeague':
+    default:
+      return CalculationMethod.MuslimWorldLeague();
+  }
+}
+
 function buildPrayerTimes(
   latitude: number,
   longitude: number,
   date: Date,
+  settings: AppSettings,
 ) {
   const coordinates = new Coordinates(latitude, longitude);
-  const params = CalculationMethod.MuslimWorldLeague();
+  const params = getCalculationParameters(settings.calculationMethod);
 
-  params.madhab = Madhab.Shafi;
+  params.madhab =
+    settings.asrMethod === 'hanafi' ? Madhab.Hanafi : Madhab.Shafi;
   params.highLatitudeRule = HighLatitudeRule.recommended(coordinates);
+  params.adjustments = settings.offsets;
 
   return {
     highLatitudeRule: params.highLatitudeRule,
@@ -67,15 +84,18 @@ export function calculatePrayerSchedule({
   date,
   latitude,
   longitude,
+  settings,
 }: {
   date: Date;
   latitude: number;
   longitude: number;
+  settings: AppSettings;
 }): PrayerSchedule {
   const { highLatitudeRule, prayerTimes } = buildPrayerTimes(
     latitude,
     longitude,
     date,
+    settings,
   );
   const tomorrow = new Date(date);
   tomorrow.setDate(date.getDate() + 1);
@@ -83,6 +103,7 @@ export function calculatePrayerSchedule({
     latitude,
     longitude,
     tomorrow,
+    settings,
   );
 
   const currentPrayerName = toPrayerName(prayerTimes.currentPrayer(date));

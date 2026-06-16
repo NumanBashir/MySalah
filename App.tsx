@@ -9,7 +9,13 @@ import {
   View,
 } from 'react-native';
 
-import { settingsPreview } from './src/data/settings';
+import {
+  PRAYER_NAMES,
+  asrMethodLabels,
+  asrMethodOptions,
+  calculationMethodLabels,
+  calculationMethodOptions,
+} from './src/constants/settings';
 import { usePrayerTimes } from './src/hooks/usePrayerTimes';
 import { colors, radii, spacing, typography } from './src/theme';
 import type {
@@ -60,7 +66,7 @@ export default function App() {
 type PrayerState = ReturnType<typeof usePrayerTimes>;
 
 function TodayScreen({ prayerState }: { prayerState: PrayerState }) {
-  const { countdown, dates, location, schedule } = prayerState;
+  const { countdown, dates, location, schedule, settings } = prayerState;
 
   return (
     <ScrollView
@@ -106,8 +112,9 @@ function TodayScreen({ prayerState }: { prayerState: PrayerState }) {
       <View style={styles.infoBand}>
         <Text style={styles.infoBandTitle}>Calculation</Text>
         <Text style={styles.infoBandText}>
-          Muslim World League, Standard Asr, {schedule.highLatitudeRule} for
-          high-latitude days.
+          {calculationMethodLabels[settings.calculationMethod]},{' '}
+          {asrMethodLabels[settings.asrMethod]} Asr,{' '}
+          {schedule.highLatitudeRule} for high-latitude days.
         </Text>
       </View>
     </ScrollView>
@@ -208,6 +215,12 @@ function SettingsScreen({ prayerState }: { prayerState: PrayerState }) {
     locationSource,
     locationStatus,
     refreshLocation,
+    settings,
+    toggleNotifications,
+    updateAsrMethod,
+    updateCalculationMethod,
+    updateOffset,
+    updateReminderMinutes,
   } = prayerState;
 
   return (
@@ -248,17 +261,94 @@ function SettingsScreen({ prayerState }: { prayerState: PrayerState }) {
       </View>
 
       <View style={styles.settingsGroup}>
-        {settingsPreview.map((setting) => (
-          <View key={setting.label} style={styles.settingRow}>
-            <View>
-              <Text style={styles.settingLabel}>{setting.label}</Text>
-              <Text style={styles.settingDescription}>
-                {setting.description}
-              </Text>
-            </View>
-            <Text style={styles.settingValue}>{setting.value}</Text>
+        <View style={styles.settingRow}>
+          <Text style={styles.settingLabel}>Calculation method</Text>
+          <Text style={styles.settingDescription}>
+            Saved locally and used offline for daily prayer calculations.
+          </Text>
+          <View style={styles.optionWrap}>
+            {calculationMethodOptions.map((method) => (
+              <OptionButton
+                isSelected={settings.calculationMethod === method}
+                key={method}
+                label={calculationMethodLabels[method]}
+                onPress={() => updateCalculationMethod(method)}
+              />
+            ))}
           </View>
-        ))}
+        </View>
+
+        <View style={styles.settingRow}>
+          <Text style={styles.settingLabel}>Asr method</Text>
+          <Text style={styles.settingDescription}>
+            Standard is used by Shafi, Maliki, and Hanbali schools. Hanafi
+            starts later.
+          </Text>
+          <View style={styles.optionRow}>
+            {asrMethodOptions.map((method) => (
+              <OptionButton
+                isSelected={settings.asrMethod === method}
+                key={method}
+                label={asrMethodLabels[method]}
+                onPress={() => updateAsrMethod(method)}
+              />
+            ))}
+          </View>
+        </View>
+
+        <View style={styles.settingRow}>
+          <Text style={styles.settingLabel}>Manual offsets</Text>
+          <Text style={styles.settingDescription}>
+            Adjust each prayer to match a trusted local timetable.
+          </Text>
+          <View style={styles.offsetList}>
+            {PRAYER_NAMES.map((prayerName) => (
+              <OffsetControl
+                key={prayerName}
+                label={prayerLabels[prayerName]}
+                onChange={(offset) => updateOffset(prayerName, offset)}
+                value={settings.offsets[prayerName]}
+              />
+            ))}
+          </View>
+        </View>
+
+        <View style={styles.settingRow}>
+          <Text style={styles.settingLabel}>Notifications</Text>
+          <Text style={styles.settingDescription}>
+            Preference is saved now. Scheduling reminders comes in the next
+            phase.
+          </Text>
+          <View style={styles.actionRow}>
+            <Pressable
+              accessibilityRole="button"
+              onPress={toggleNotifications}
+              style={[
+                styles.choiceButton,
+                settings.notifications.enabled && styles.choiceButtonActive,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.choiceButtonText,
+                  settings.notifications.enabled &&
+                    styles.choiceButtonTextActive,
+                ]}
+              >
+                {settings.notifications.enabled ? 'On' : 'Off'}
+              </Text>
+            </Pressable>
+            <View style={styles.inlineStepperGroup}>
+              <Text style={styles.inlineStepperLabel}>Reminder</Text>
+              <StepperControl
+                label="Reminder"
+                onChange={updateReminderMinutes}
+                suffix="min"
+                value={settings.notifications.reminderMinutes}
+              />
+            </View>
+          </View>
+        </View>
       </View>
 
       <View style={styles.infoBand}>
@@ -270,6 +360,87 @@ function SettingsScreen({ prayerState }: { prayerState: PrayerState }) {
         </Text>
       </View>
     </ScrollView>
+  );
+}
+
+function OptionButton({
+  isSelected,
+  label,
+  onPress,
+}: {
+  isSelected: boolean;
+  label: string;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ selected: isSelected }}
+      onPress={onPress}
+      style={[styles.choiceButton, isSelected && styles.choiceButtonActive]}
+    >
+      <Text
+        style={[
+          styles.choiceButtonText,
+          isSelected && styles.choiceButtonTextActive,
+        ]}
+      >
+        {label}
+      </Text>
+    </Pressable>
+  );
+}
+
+function OffsetControl({
+  label,
+  onChange,
+  value,
+}: {
+  label: string;
+  onChange: (value: number) => void;
+  value: number;
+}) {
+  return (
+    <View style={styles.offsetRow}>
+      <Text style={styles.offsetLabel}>{label}</Text>
+      <StepperControl label={label} onChange={onChange} value={value} />
+    </View>
+  );
+}
+
+function StepperControl({
+  label,
+  onChange,
+  suffix = 'min',
+  value,
+}: {
+  label: string;
+  onChange: (value: number) => void;
+  suffix?: string;
+  value: number;
+}) {
+  return (
+    <View style={styles.stepper}>
+      <Pressable
+        accessibilityLabel={`Decrease ${label}`}
+        accessibilityRole="button"
+        onPress={() => onChange(value - 1)}
+        style={styles.stepperButton}
+      >
+        <Text style={styles.stepperButtonText}>-</Text>
+      </Pressable>
+      <Text style={styles.stepperValue}>
+        {value > 0 ? `+${value}` : value} {suffix}
+      </Text>
+      <Pressable
+        accessibilityLabel={`Increase ${label}`}
+        accessibilityRole="button"
+        onPress={() => onChange(value + 1)}
+        style={styles.stepperButton}
+      >
+        <Text style={styles.stepperButtonText}>+</Text>
+      </Pressable>
+    </View>
   );
 }
 
@@ -600,6 +771,93 @@ const styles = StyleSheet.create({
     color: colors.accentDeep,
     fontSize: typography.body,
     fontWeight: '800',
+  },
+  optionWrap: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+  },
+  optionRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  choiceButton: {
+    alignItems: 'center',
+    backgroundColor: colors.background,
+    borderColor: colors.border,
+    borderRadius: radii.full,
+    borderWidth: 1,
+    justifyContent: 'center',
+    minHeight: 36,
+    paddingHorizontal: spacing.md,
+  },
+  choiceButtonActive: {
+    backgroundColor: colors.accent,
+    borderColor: colors.accent,
+  },
+  choiceButtonText: {
+    color: colors.mutedText,
+    fontSize: typography.small,
+    fontWeight: '800',
+  },
+  choiceButtonTextActive: {
+    color: colors.onAccent,
+  },
+  offsetList: {
+    gap: spacing.sm,
+  },
+  offsetRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    minHeight: 44,
+  },
+  offsetLabel: {
+    color: colors.text,
+    fontSize: typography.body,
+    fontWeight: '700',
+  },
+  actionRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: spacing.md,
+    justifyContent: 'space-between',
+  },
+  inlineStepperGroup: {
+    alignItems: 'flex-end',
+    gap: spacing.xs,
+  },
+  inlineStepperLabel: {
+    color: colors.mutedText,
+    fontSize: typography.small,
+    fontWeight: '700',
+  },
+  stepper: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  stepperButton: {
+    alignItems: 'center',
+    backgroundColor: colors.background,
+    borderColor: colors.border,
+    borderRadius: radii.full,
+    borderWidth: 1,
+    height: 32,
+    justifyContent: 'center',
+    width: 32,
+  },
+  stepperButtonText: {
+    color: colors.accentDeep,
+    fontSize: typography.body,
+    fontWeight: '800',
+  },
+  stepperValue: {
+    color: colors.accentDeep,
+    fontSize: typography.small,
+    fontWeight: '800',
+    minWidth: 56,
+    textAlign: 'center',
   },
   tabBar: {
     backgroundColor: colors.surface,

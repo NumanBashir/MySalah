@@ -28,10 +28,11 @@ Goal: replace mock data with calculated daily prayer times.
 
 Goal: persist settings and offline-ready state.
 
-- Store location, calculation method, Asr method, offsets, and notification preference
-- Load saved state on startup
-- Use saved coordinates when offline or permission is unavailable
-- Add clear fallback states for missing location
+- Completed: store location, calculation method, Asr method, offsets, and notification preference
+- Completed: load saved state on startup
+- Completed: use saved coordinates when offline or permission is unavailable
+- Completed: add clear fallback states for missing location
+- Completed: add local Settings controls for calculation method, Asr method, offsets, and notification preference
 
 ## Phase 4: Notifications
 
@@ -47,11 +48,11 @@ Goal: schedule simple local reminders.
 
 Goal: make calculation and reminder behavior adjustable without clutter.
 
-- Calculation method picker
-- Asr method picker
-- Manual offsets per prayer
-- Notification enable/disable
-- Location refresh action
+- Completed: calculation method picker
+- Completed: Asr method picker
+- Completed: manual offsets per prayer
+- Completed: notification enable/disable preference
+- Completed: location refresh action
 - Accuracy note
 
 ## Phase 6: Qibla
@@ -83,3 +84,8 @@ Goal: prepare private distribution.
 - Privacy details
 - Basic support contact
 - Internal tester feedback loop
+
+## Other ideas later
+
+- Widgets for countdown and next prayer
+-

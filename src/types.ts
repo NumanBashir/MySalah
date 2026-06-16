@@ -6,6 +6,29 @@ export type PrayerName =
   | 'maghrib'
   | 'isha';
 
+export type CalculationMethodKey =
+  | 'MuslimWorldLeague'
+  | 'MoonsightingCommittee'
+  | 'UmmAlQura'
+  | 'Turkey'
+  | 'Other';
+
+export type AsrMethod = 'standard' | 'hanafi';
+
+export type PrayerOffsets = Record<PrayerName, number>;
+
+export type NotificationPreference = {
+  enabled: boolean;
+  reminderMinutes: number;
+};
+
+export type AppSettings = {
+  calculationMethod: CalculationMethodKey;
+  asrMethod: AsrMethod;
+  offsets: PrayerOffsets;
+  notifications: NotificationPreference;
+};
+
 export type PrayerTime = {
   name: PrayerName;
   timestamp: Date;

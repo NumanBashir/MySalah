@@ -65,10 +65,10 @@ function TodayScreen() {
       <View style={styles.header}>
         <View>
           <Text style={styles.location}>Copenhagen, Denmark</Text>
-          <Text style={styles.dateText}>Tuesday, June 16</Text>
-        </View>
-        <View style={styles.datePill}>
-          <Text style={styles.datePillText}>1 Muharram</Text>
+          <View style={styles.dateStack}>
+            <Text style={styles.hijriDateText}>1 Muharram</Text>
+            <Text style={styles.dateText}>Tuesday, June 16</Text>
+          </View>
         </View>
       </View>
 
@@ -266,20 +266,15 @@ const styles = StyleSheet.create({
   dateText: {
     color: colors.mutedText,
     fontSize: typography.body,
-    marginTop: spacing.xs,
   },
-  datePill: {
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
-    borderRadius: radii.full,
-    borderWidth: 1,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+  dateStack: {
+    marginTop: spacing.sm,
   },
-  datePillText: {
-    color: colors.mutedText,
-    fontSize: typography.small,
-    fontWeight: '600',
+  hijriDateText: {
+    color: colors.accentDeep,
+    fontSize: typography.body,
+    fontWeight: '700',
+    marginBottom: spacing.xs,
   },
   nextPrayerPanel: {
     backgroundColor: colors.accent,

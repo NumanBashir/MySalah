@@ -5,6 +5,7 @@
 Goal: make the app open to a calm, testable shell before adding permissions.
 
 - Expo React Native TypeScript project
+- Expo SDK 54 target for current Expo Go compatibility
 - Basic app theme
 - Today, Qibla, and Settings screens
 - Bottom tab navigation
@@ -82,4 +83,3 @@ Goal: prepare private distribution.
 - Privacy details
 - Basic support contact
 - Internal tester feedback loop
-

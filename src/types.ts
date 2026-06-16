@@ -39,6 +39,7 @@ export type SavedLocation = {
   latitude: number;
   longitude: number;
   label: string;
+  timeZone: string;
   updatedAt: string;
 };
 

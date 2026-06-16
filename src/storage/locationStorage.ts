@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { DEFAULT_LOCATION, TEST_LOCATIONS } from '../constants/location';
 import type { SavedLocation } from '../types';
 
 const LAST_LOCATION_KEY = 'mysalah:last-location';
@@ -15,8 +16,27 @@ function isSavedLocation(value: unknown): value is SavedLocation {
     typeof location.latitude === 'number' &&
     typeof location.longitude === 'number' &&
     typeof location.label === 'string' &&
+    (typeof location.timeZone === 'string' ||
+      typeof location.timeZone === 'undefined') &&
     typeof location.updatedAt === 'string'
   );
+}
+
+function normalizeSavedLocation(location: SavedLocation): SavedLocation {
+  const matchingTestLocation = TEST_LOCATIONS.find(
+    (testLocation) =>
+      testLocation.label === location.label &&
+      Math.abs(testLocation.latitude - location.latitude) < 0.001 &&
+      Math.abs(testLocation.longitude - location.longitude) < 0.001,
+  );
+
+  return {
+    ...location,
+    timeZone:
+      location.timeZone ??
+      matchingTestLocation?.timeZone ??
+      DEFAULT_LOCATION.timeZone,
+  };
 }
 
 export async function loadSavedLocation(): Promise<SavedLocation | null> {
@@ -28,7 +48,9 @@ export async function loadSavedLocation(): Promise<SavedLocation | null> {
 
   try {
     const parsedLocation: unknown = JSON.parse(rawLocation);
-    return isSavedLocation(parsedLocation) ? parsedLocation : null;
+    return isSavedLocation(parsedLocation)
+      ? normalizeSavedLocation(parsedLocation)
+      : null;
   } catch {
     return null;
   }

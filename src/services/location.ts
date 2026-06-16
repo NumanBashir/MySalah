@@ -54,6 +54,7 @@ export async function requestCurrentLocation(): Promise<LocationResult> {
         label,
         latitude,
         longitude,
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         updatedAt: new Date().toISOString(),
       },
       status: 'granted',

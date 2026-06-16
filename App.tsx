@@ -16,6 +16,7 @@ import {
   calculationMethodLabels,
   calculationMethodOptions,
 } from './src/constants/settings';
+import { TEST_LOCATIONS } from './src/constants/location';
 import { usePrayerTimes } from './src/hooks/usePrayerTimes';
 import { colors, radii, spacing, typography } from './src/theme';
 import type {
@@ -93,7 +94,7 @@ function TodayScreen({ prayerState }: { prayerState: PrayerState }) {
             <Text style={styles.countdown}>{countdown}</Text>
           </View>
           <Text style={styles.nextPrayerTime}>
-            {formatTime(schedule.nextPrayerTime)}
+            {formatTime(schedule.nextPrayerTime, location.timeZone)}
           </Text>
         </View>
       </View>
@@ -215,6 +216,7 @@ function SettingsScreen({ prayerState }: { prayerState: PrayerState }) {
     locationSource,
     locationStatus,
     refreshLocation,
+    selectTestLocation,
     settings,
     toggleNotifications,
     updateAsrMethod,
@@ -258,6 +260,54 @@ function SettingsScreen({ prayerState }: { prayerState: PrayerState }) {
           </Pressable>
         </View>
         <Text style={styles.settingValue}>{location.label}</Text>
+        <Text style={styles.locationTimeZone}>{location.timeZone}</Text>
+      </View>
+
+      <View style={styles.locationPanel}>
+        <Text style={styles.settingLabel}>Test locations</Text>
+        <Text style={styles.settingDescription}>
+          Pick a saved city to preview very different prayer times without
+          using GPS.
+        </Text>
+        <View style={styles.testLocationList}>
+          {TEST_LOCATIONS.map((testLocation) => {
+            const isSelected =
+              location.label === testLocation.label &&
+              Math.abs(location.latitude - testLocation.latitude) < 0.001 &&
+              Math.abs(location.longitude - testLocation.longitude) < 0.001;
+
+            return (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityState={{ selected: isSelected }}
+                key={testLocation.label}
+                onPress={() => selectTestLocation(testLocation)}
+                style={[
+                  styles.testLocationButton,
+                  isSelected && styles.testLocationButtonActive,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.testLocationLabel,
+                    isSelected && styles.testLocationLabelActive,
+                  ]}
+                >
+                  {testLocation.label}
+                </Text>
+                <Text
+                  style={[
+                    styles.testLocationCoordinates,
+                    isSelected && styles.testLocationCoordinatesActive,
+                  ]}
+                >
+                  {testLocation.latitude.toFixed(2)},{' '}
+                  {testLocation.longitude.toFixed(2)}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
       </View>
 
       <View style={styles.settingsGroup}>
@@ -748,6 +798,46 @@ const styles = StyleSheet.create({
   locationPanelTextGroup: {
     flex: 1,
     paddingRight: spacing.md,
+  },
+  locationTimeZone: {
+    color: colors.mutedText,
+    fontSize: typography.small,
+    fontWeight: '700',
+    marginTop: spacing.xs,
+  },
+  testLocationList: {
+    gap: spacing.sm,
+    marginTop: spacing.md,
+  },
+  testLocationButton: {
+    backgroundColor: colors.background,
+    borderColor: colors.border,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    gap: spacing.xs,
+    minHeight: 58,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  testLocationButtonActive: {
+    backgroundColor: colors.accent,
+    borderColor: colors.accent,
+  },
+  testLocationLabel: {
+    color: colors.text,
+    fontSize: typography.body,
+    fontWeight: '800',
+  },
+  testLocationLabelActive: {
+    color: colors.onAccent,
+  },
+  testLocationCoordinates: {
+    color: colors.mutedText,
+    fontSize: typography.small,
+    fontWeight: '700',
+  },
+  testLocationCoordinatesActive: {
+    color: colors.onAccentMuted,
   },
   settingRow: {
     borderBottomColor: colors.border,

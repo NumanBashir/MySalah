@@ -48,6 +48,18 @@ export function usePrayerTimes() {
     );
   }, []);
 
+  const selectTestLocation = useCallback(async (testLocation: SavedLocation) => {
+    const nextLocation = {
+      ...testLocation,
+      updatedAt: new Date().toISOString(),
+    };
+
+    setLocation(nextLocation);
+    setLocationSource('saved');
+    setLocationStatus('ready');
+    await saveLocation(nextLocation);
+  }, []);
+
   const persistSettings = useCallback((nextSettings: AppSettings) => {
     setSettings(nextSettings);
     void saveSettings(nextSettings);
@@ -158,21 +170,23 @@ export function usePrayerTimes() {
         latitude: location.latitude,
         longitude: location.longitude,
         settings,
+        timeZone: location.timeZone,
       }),
-    [location.latitude, location.longitude, now, settings],
+    [location.latitude, location.longitude, location.timeZone, now, settings],
   );
 
   return {
     countdown: formatCountdown(now, schedule.nextPrayerTime),
     dates: {
-      gregorian: formatGregorianDate(now),
-      hijri: formatHijriDate(now),
+      hijri: formatHijriDate(now, location.timeZone),
+      gregorian: formatGregorianDate(now, location.timeZone),
     },
     location,
     locationSource,
     locationStatus,
     refreshLocation,
     schedule,
+    selectTestLocation,
     settings,
     toggleNotifications,
     updateAsrMethod,

@@ -14,7 +14,7 @@ import type {
   PrayerSchedule,
   PrayerTime,
 } from '../types';
-import { formatTime } from '../utils/date';
+import { formatTime, getDateForTimeZone } from '../utils/date';
 
 const highLatitudeRuleLabels: Record<string, string> = {
   middleofthenight: 'Middle of the night',
@@ -32,13 +32,16 @@ function getTimestamp(prayerTimes: PrayerTimes, prayerName: PrayerName) {
   return prayerTimes[prayerName];
 }
 
-function getPrayerTimes(prayerTimes: PrayerTimes): PrayerTime[] {
+function getPrayerTimes(
+  prayerTimes: PrayerTimes,
+  timeZone: string,
+): PrayerTime[] {
   return PRAYER_NAMES.map((name) => {
     const timestamp = getTimestamp(prayerTimes, name);
 
     return {
       name,
-      time: formatTime(timestamp),
+      time: formatTime(timestamp, timeZone),
       timestamp,
     };
   });
@@ -85,20 +88,23 @@ export function calculatePrayerSchedule({
   latitude,
   longitude,
   settings,
+  timeZone,
 }: {
   date: Date;
   latitude: number;
   longitude: number;
   settings: AppSettings;
+  timeZone: string;
 }): PrayerSchedule {
+  const calculationDate = getDateForTimeZone(date, timeZone);
   const { highLatitudeRule, prayerTimes } = buildPrayerTimes(
     latitude,
     longitude,
-    date,
+    calculationDate,
     settings,
   );
-  const tomorrow = new Date(date);
-  tomorrow.setDate(date.getDate() + 1);
+  const tomorrow = new Date(calculationDate);
+  tomorrow.setDate(calculationDate.getDate() + 1);
   const { prayerTimes: tomorrowPrayerTimes } = buildPrayerTimes(
     latitude,
     longitude,
@@ -120,6 +126,6 @@ export function calculatePrayerSchedule({
       highLatitudeRuleLabels[highLatitudeRule] ?? highLatitudeRule,
     nextPrayerName,
     nextPrayerTime,
-    prayerTimes: getPrayerTimes(prayerTimes),
+    prayerTimes: getPrayerTimes(prayerTimes, timeZone),
   };
 }

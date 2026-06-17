@@ -54,17 +54,17 @@ Goal: make calculation and reminder behavior adjustable without clutter.
 - Completed: manual offsets per prayer
 - Completed: notification enable/disable preference
 - Completed: location refresh action
-- Accuracy note
+- Completed: accuracy note
 
 ## Phase 6: Qibla
 
 Goal: add real-time Qibla direction.
 
-- Calculate Qibla angle from stored/current coordinates
-- Read device heading
-- Rotate Qibla arrow in real time
-- Add simple sensor guidance
-- Handle unavailable or unreliable heading
+- Completed: calculate Qibla angle from stored/current coordinates
+- Completed: read device heading on iOS/Android
+- Completed: rotate Qibla arrow in real time
+- Completed: add simple sensor guidance
+- Completed: handle unavailable or unreliable heading
 
 ## Phase 7: Personal Testing
 
@@ -90,6 +90,7 @@ Goal: prepare private distribution.
 
 - Widgets for countdown and next prayer
 - Bottom navbar, make it smaller or somehow more sleek, it fills a lot I feel, maybe add icons instead of letters
+- Make Qibla arrow and compass better looking, and more smooth change when turning
 - Framer motion
 - UI/UX skill
 - Make the app more nice with animations, gradients, and texture that will make it feel more professional

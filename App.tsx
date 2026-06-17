@@ -18,6 +18,7 @@ import {
 } from "./src/constants/settings";
 import { TEST_LOCATIONS } from "./src/constants/location";
 import { usePrayerTimes } from "./src/hooks/usePrayerTimes";
+import { useQibla } from "./src/hooks/useQibla";
 import { colors, radii, spacing, typography } from "./src/theme";
 import type { LocationSource, LocationStatus, PrayerName } from "./src/types";
 import { formatTime } from "./src/utils/date";
@@ -49,7 +50,7 @@ export default function App() {
       <View style={styles.appShell}>
         <View style={styles.content}>
           {activeTab === "today" && <TodayScreen prayerState={prayerState} />}
-          {activeTab === "qibla" && <QiblaScreen />}
+          {activeTab === "qibla" && <QiblaScreen prayerState={prayerState} />}
           {activeTab === "settings" && (
             <SettingsScreen prayerState={prayerState} />
           )}
@@ -170,7 +171,18 @@ function PrayerTimeRow({
   );
 }
 
-function QiblaScreen() {
+function QiblaScreen({ prayerState }: { prayerState: PrayerState }) {
+  const { location } = prayerState;
+  const qibla = useQibla(location);
+  const headingLabel =
+    qibla.heading === null
+      ? "Waiting"
+      : `${Math.round(qibla.heading)} deg ${
+          qibla.headingSource === "magnetic" ? "magnetic" : "true"
+        }`;
+  const accuracyLabel =
+    qibla.accuracy === null ? "Unknown" : `${qibla.accuracy}/3`;
+
   return (
     <ScrollView
       contentContainerStyle={[styles.screenContent, styles.centeredScreen]}
@@ -178,7 +190,7 @@ function QiblaScreen() {
     >
       <View style={styles.qiblaHeader}>
         <Text style={styles.screenTitle}>Qibla</Text>
-        <Text style={styles.screenSubtitle}>Keep the phone flat.</Text>
+        <Text style={styles.screenSubtitle}>{location.label}</Text>
       </View>
 
       <View style={styles.compass}>
@@ -187,17 +199,32 @@ function QiblaScreen() {
         <Text style={[styles.compassLabel, styles.compassSouth]}>S</Text>
         <Text style={[styles.compassLabel, styles.compassWest]}>W</Text>
         <View style={styles.compassInner}>
-          <View style={styles.qiblaArrow} />
-          <Text style={styles.qiblaDegrees}>121 deg</Text>
+          <View
+            style={[
+              styles.qiblaArrow,
+              { transform: [{ rotate: `${qibla.arrowRotation}deg` }] },
+            ]}
+          />
+          <Text style={styles.qiblaDegrees}>
+            {Math.round(qibla.qiblaAngle)} deg to Qibla
+          </Text>
+        </View>
+      </View>
+
+      <View style={styles.qiblaReadout}>
+        <View style={styles.qiblaReadoutItem}>
+          <Text style={styles.qiblaReadoutLabel}>Heading</Text>
+          <Text style={styles.qiblaReadoutValue}>{headingLabel}</Text>
+        </View>
+        <View style={styles.qiblaReadoutItem}>
+          <Text style={styles.qiblaReadoutLabel}>Accuracy</Text>
+          <Text style={styles.qiblaReadoutValue}>{accuracyLabel}</Text>
         </View>
       </View>
 
       <View style={styles.infoBand}>
-        <Text style={styles.infoBandTitle}>Sensor preview</Text>
-        <Text style={styles.infoBandText}>
-          Live compass movement will be connected in the Qibla phase after
-          location and sensor permissions are in place.
-        </Text>
+        <Text style={styles.infoBandTitle}>Sensor guidance</Text>
+        <Text style={styles.infoBandText}>{qibla.statusText}</Text>
       </View>
     </ScrollView>
   );
@@ -750,7 +777,6 @@ const styles = StyleSheet.create({
     borderRightColor: "transparent",
     borderRightWidth: 20,
     height: 0,
-    transform: [{ rotate: "121deg" }],
     width: 0,
   },
   qiblaDegrees: {
@@ -758,6 +784,32 @@ const styles = StyleSheet.create({
     fontSize: typography.small,
     fontWeight: "700",
     marginTop: spacing.md,
+  },
+  qiblaReadout: {
+    alignSelf: "stretch",
+    flexDirection: "row",
+    gap: spacing.md,
+    marginTop: spacing.lg,
+  },
+  qiblaReadoutItem: {
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    flex: 1,
+    padding: spacing.md,
+  },
+  qiblaReadoutLabel: {
+    color: colors.mutedText,
+    fontSize: typography.small,
+    fontWeight: "800",
+    marginBottom: spacing.xs,
+    textTransform: "uppercase",
+  },
+  qiblaReadoutValue: {
+    color: colors.text,
+    fontSize: typography.body,
+    fontWeight: "800",
   },
   infoBand: {
     alignSelf: "stretch",

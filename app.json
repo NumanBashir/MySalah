@@ -4,7 +4,7 @@
     "slug": "MySalah",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/MySalahIcon.png",
     "userInterfaceStyle": "light",
     "plugins": [
       [

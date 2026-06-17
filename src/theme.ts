@@ -30,7 +30,7 @@ export const radii = {
 export const typography = {
   small: 12,
   body: 16,
-  heading: 24,
+  heading: 28,
   title: 30,
   display: 40,
 };

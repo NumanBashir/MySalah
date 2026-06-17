@@ -18,6 +18,7 @@ import {
   calculationMethodOptions,
 } from "./src/constants/settings";
 import { VercelInsights } from "./src/components/VercelInsights";
+import { featureFlags } from "./src/constants/featureFlags";
 import { TEST_LOCATIONS } from "./src/constants/location";
 import { usePrayerTimes } from "./src/hooks/usePrayerTimes";
 import { useQibla } from "./src/hooks/useQibla";
@@ -281,16 +282,18 @@ function QiblaScreen({ prayerState }: { prayerState: PrayerState }) {
         </View>
       </View>
 
-      <View style={styles.qiblaReadout}>
-        <View style={styles.qiblaReadoutItem}>
-          <Text style={styles.qiblaReadoutLabel}>Heading</Text>
-          <Text style={styles.qiblaReadoutValue}>{headingLabel}</Text>
+      {featureFlags.showQiblaDiagnostics && (
+        <View style={styles.qiblaReadout}>
+          <View style={styles.qiblaReadoutItem}>
+            <Text style={styles.qiblaReadoutLabel}>Heading</Text>
+            <Text style={styles.qiblaReadoutValue}>{headingLabel}</Text>
+          </View>
+          <View style={styles.qiblaReadoutItem}>
+            <Text style={styles.qiblaReadoutLabel}>Accuracy</Text>
+            <Text style={styles.qiblaReadoutValue}>{accuracyLabel}</Text>
+          </View>
         </View>
-        <View style={styles.qiblaReadoutItem}>
-          <Text style={styles.qiblaReadoutLabel}>Accuracy</Text>
-          <Text style={styles.qiblaReadoutValue}>{accuracyLabel}</Text>
-        </View>
-      </View>
+      )}
 
       {qibla.canRequestPermission && (
         <Pressable
@@ -370,52 +373,54 @@ function SettingsScreen({ prayerState }: { prayerState: PrayerState }) {
         )}
       </View>
 
-      <View style={styles.locationPanel}>
-        <Text style={styles.settingLabel}>Test locations</Text>
-        <Text style={styles.settingDescription}>
-          Pick a saved city to preview very different prayer times without using
-          GPS.
-        </Text>
-        <View style={styles.testLocationList}>
-          {TEST_LOCATIONS.map((testLocation) => {
-            const isSelected =
-              location.label === testLocation.label &&
-              Math.abs(location.latitude - testLocation.latitude) < 0.001 &&
-              Math.abs(location.longitude - testLocation.longitude) < 0.001;
+      {featureFlags.showTestLocations && (
+        <View style={styles.locationPanel}>
+          <Text style={styles.settingLabel}>Test locations</Text>
+          <Text style={styles.settingDescription}>
+            Pick a saved city to preview very different prayer times without
+            using GPS.
+          </Text>
+          <View style={styles.testLocationList}>
+            {TEST_LOCATIONS.map((testLocation) => {
+              const isSelected =
+                location.label === testLocation.label &&
+                Math.abs(location.latitude - testLocation.latitude) < 0.001 &&
+                Math.abs(location.longitude - testLocation.longitude) < 0.001;
 
-            return (
-              <Pressable
-                accessibilityRole="button"
-                accessibilityState={{ selected: isSelected }}
-                key={testLocation.label}
-                onPress={() => selectTestLocation(testLocation)}
-                style={[
-                  styles.testLocationButton,
-                  isSelected && styles.testLocationButtonActive,
-                ]}
-              >
-                <Text
+              return (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: isSelected }}
+                  key={testLocation.label}
+                  onPress={() => selectTestLocation(testLocation)}
                   style={[
-                    styles.testLocationLabel,
-                    isSelected && styles.testLocationLabelActive,
+                    styles.testLocationButton,
+                    isSelected && styles.testLocationButtonActive,
                   ]}
                 >
-                  {testLocation.label}
-                </Text>
-                <Text
-                  style={[
-                    styles.testLocationCoordinates,
-                    isSelected && styles.testLocationCoordinatesActive,
-                  ]}
-                >
-                  {testLocation.latitude.toFixed(2)},{" "}
-                  {testLocation.longitude.toFixed(2)}
-                </Text>
-              </Pressable>
-            );
-          })}
+                  <Text
+                    style={[
+                      styles.testLocationLabel,
+                      isSelected && styles.testLocationLabelActive,
+                    ]}
+                  >
+                    {testLocation.label}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.testLocationCoordinates,
+                      isSelected && styles.testLocationCoordinatesActive,
+                    ]}
+                  >
+                    {testLocation.latitude.toFixed(2)},{" "}
+                    {testLocation.longitude.toFixed(2)}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
         </View>
-      </View>
+      )}
 
       <View style={styles.settingsGroup}>
         <View style={styles.settingRow}>
@@ -506,13 +511,15 @@ function SettingsScreen({ prayerState }: { prayerState: PrayerState }) {
               />
             </View>
           </View>
-          <Pressable
-            accessibilityRole="button"
-            onPress={sendTestNotification}
-            style={styles.testNotificationButton}
-          >
-            <Text style={styles.testNotificationButtonText}>Test in 5s</Text>
-          </Pressable>
+          {featureFlags.showTestNotificationButton && (
+            <Pressable
+              accessibilityRole="button"
+              onPress={sendTestNotification}
+              style={styles.testNotificationButton}
+            >
+              <Text style={styles.testNotificationButtonText}>Test in 5s</Text>
+            </Pressable>
+          )}
         </View>
       </View>
 
@@ -682,7 +689,7 @@ const styles = StyleSheet.create({
   },
   location: {
     color: colors.text,
-    fontSize: typography.title,
+    fontSize: typography.heading,
     fontWeight: "700",
     lineHeight: 36,
   },

@@ -91,6 +91,7 @@ Goal: deploy MySalah as a web app that can be added to the iPhone home screen.
 
 ## Other ideas later
 
+- Feature flags live in `src/constants/featureFlags.ts` for hiding or showing test-only UI.
 - Widgets for countdown and next prayer
 - Bottom navbar, make it smaller or somehow more sleek, it fills a lot I feel, maybe add icons instead of letters
 - Make Qibla arrow and compass better looking, and more smooth change when turning, maybe have like one arrow direction that is set already and do not move, and then another arrow for the direction ones head is pointing

@@ -3,6 +3,7 @@ import {
   Coordinates,
   HighLatitudeRule,
   Madhab,
+  PolarCircleResolution,
   PrayerTimes,
 } from 'adhan';
 
@@ -75,6 +76,7 @@ function buildPrayerTimes(
   params.madhab =
     settings.asrMethod === 'hanafi' ? Madhab.Hanafi : Madhab.Shafi;
   params.highLatitudeRule = HighLatitudeRule.recommended(coordinates);
+  params.polarCircleResolution = PolarCircleResolution.AqrabBalad;
   params.adjustments = settings.offsets;
 
   return {

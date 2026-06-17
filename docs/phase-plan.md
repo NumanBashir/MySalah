@@ -38,10 +38,11 @@ Goal: persist settings and offline-ready state.
 
 Goal: schedule simple local reminders.
 
-- Request notification permission
-- Schedule reminders 5 minutes before prayers
-- Skip expired reminders for the current day
-- Reschedule on date, location, setting, or notification preference changes
+- Completed: request notification permission
+- Completed: schedule reminders before prayers using the saved reminder preference
+- Completed: skip expired reminders for the current day
+- Completed: reschedule on date, location, setting, or notification preference changes
+- Completed: add a Settings test button that schedules a notification in 10 seconds
 - Verify on a real iPhone
 
 ## Phase 5: Settings
@@ -88,4 +89,9 @@ Goal: prepare private distribution.
 ## Other ideas later
 
 - Widgets for countdown and next prayer
--
+- Bottom navbar, make it smaller or somehow more sleek, it fills a lot I feel, maybe add icons instead of letters
+- Framer motion
+- UI/UX skill
+- Make the app more nice with animations, gradients, and texture that will make it feel more professional
+- Adhan sound for notification
+- Numan Bashir adhan sound

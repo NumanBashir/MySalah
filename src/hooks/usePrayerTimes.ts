@@ -3,6 +3,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { DEFAULT_LOCATION } from '../constants/location';
 import { DEFAULT_SETTINGS } from '../constants/settings';
 import { requestCurrentLocation } from '../services/location';
+import {
+  schedulePrayerReminderNotifications,
+  scheduleTestNotification,
+} from '../services/notifications';
 import { calculatePrayerSchedule } from '../services/prayerTimes';
 import { loadSavedLocation, saveLocation } from '../storage/locationStorage';
 import { loadSettings, saveSettings } from '../storage/settingsStorage';
@@ -29,6 +33,9 @@ export function usePrayerTimes() {
   const [locationStatus, setLocationStatus] =
     useState<LocationStatus>('loading');
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
+  const [notificationStatus, setNotificationStatus] = useState(
+    'Notification reminders are syncing.',
+  );
 
   const refreshLocation = useCallback(async () => {
     setLocationStatus('loading');
@@ -175,6 +182,87 @@ export function usePrayerTimes() {
     [location.latitude, location.longitude, location.timeZone, now, settings],
   );
 
+  const localDateKey = useMemo(
+    () => formatGregorianDate(now, location.timeZone),
+    [location.timeZone, now],
+  );
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function syncNotifications() {
+      try {
+        const result = await schedulePrayerReminderNotifications({
+          enabled: settings.notifications.enabled,
+          location,
+          prayerTimes: schedule.prayerTimes,
+          reminderMinutes: settings.notifications.reminderMinutes,
+        });
+
+        if (!isMounted) {
+          return;
+        }
+
+        if (result.status === 'scheduled') {
+          setNotificationStatus(
+            `Scheduled ${result.count} reminder${result.count === 1 ? '' : 's'} for today.`,
+          );
+          return;
+        }
+
+        if (result.status === 'disabled') {
+          setNotificationStatus('Prayer reminders are off.');
+          return;
+        }
+
+        if (result.status === 'permission-denied') {
+          setNotificationStatus('Notification permission is not allowed.');
+          return;
+        }
+
+        setNotificationStatus('Notifications require a real iPhone or Android device.');
+      } catch {
+        if (isMounted) {
+          setNotificationStatus('Could not schedule prayer reminders.');
+        }
+      }
+    }
+
+    syncNotifications();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [
+    localDateKey,
+    location,
+    settings.asrMethod,
+    settings.calculationMethod,
+    settings.notifications.enabled,
+    settings.notifications.reminderMinutes,
+    settings.offsets,
+  ]);
+
+  const sendTestNotification = useCallback(async () => {
+    try {
+      const result = await scheduleTestNotification();
+
+      if (result.status === 'scheduled') {
+        setNotificationStatus('Test notification scheduled for 10 seconds.');
+        return;
+      }
+
+      if (result.status === 'permission-denied') {
+        setNotificationStatus('Notification permission is not allowed.');
+        return;
+      }
+
+      setNotificationStatus('Test notifications require a real device.');
+    } catch {
+      setNotificationStatus('Could not schedule the test notification.');
+    }
+  }, []);
+
   return {
     countdown: formatCountdown(now, schedule.nextPrayerTime),
     dates: {
@@ -184,9 +272,11 @@ export function usePrayerTimes() {
     location,
     locationSource,
     locationStatus,
+    notificationStatus,
     refreshLocation,
     schedule,
     selectTestLocation,
+    sendTestNotification,
     settings,
     toggleNotifications,
     updateAsrMethod,

@@ -1,5 +1,5 @@
-import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
+import { StatusBar } from "expo-status-bar";
+import { useState } from "react";
 import {
   Pressable,
   SafeAreaView,
@@ -7,7 +7,7 @@ import {
   StyleSheet,
   Text,
   View,
-} from 'react-native';
+} from "react-native";
 
 import {
   PRAYER_NAMES,
@@ -15,36 +15,32 @@ import {
   asrMethodOptions,
   calculationMethodLabels,
   calculationMethodOptions,
-} from './src/constants/settings';
-import { TEST_LOCATIONS } from './src/constants/location';
-import { usePrayerTimes } from './src/hooks/usePrayerTimes';
-import { colors, radii, spacing, typography } from './src/theme';
-import type {
-  LocationSource,
-  LocationStatus,
-  PrayerName,
-} from './src/types';
-import { formatTime } from './src/utils/date';
+} from "./src/constants/settings";
+import { TEST_LOCATIONS } from "./src/constants/location";
+import { usePrayerTimes } from "./src/hooks/usePrayerTimes";
+import { colors, radii, spacing, typography } from "./src/theme";
+import type { LocationSource, LocationStatus, PrayerName } from "./src/types";
+import { formatTime } from "./src/utils/date";
 
-type TabKey = 'today' | 'qibla' | 'settings';
+type TabKey = "today" | "qibla" | "settings";
 
 const tabs: Array<{ key: TabKey; label: string; symbol: string }> = [
-  { key: 'today', label: 'Today', symbol: 'T' },
-  { key: 'qibla', label: 'Qibla', symbol: 'Q' },
-  { key: 'settings', label: 'Settings', symbol: 'S' },
+  { key: "today", label: "Today", symbol: "T" },
+  { key: "qibla", label: "Qibla", symbol: "Q" },
+  { key: "settings", label: "Settings", symbol: "S" },
 ];
 
 const prayerLabels: Record<PrayerName, string> = {
-  fajr: 'Fajr',
-  sunrise: 'Sunrise',
-  dhuhr: 'Dhuhr',
-  asr: 'Asr',
-  maghrib: 'Maghrib',
-  isha: 'Isha',
+  fajr: "Fajr",
+  sunrise: "Sunrise",
+  dhuhr: "Dhuhr",
+  asr: "Asr",
+  maghrib: "Maghrib",
+  isha: "Isha",
 };
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<TabKey>('today');
+  const [activeTab, setActiveTab] = useState<TabKey>("today");
   const prayerState = usePrayerTimes();
 
   return (
@@ -52,9 +48,9 @@ export default function App() {
       <StatusBar style="dark" />
       <View style={styles.appShell}>
         <View style={styles.content}>
-          {activeTab === 'today' && <TodayScreen prayerState={prayerState} />}
-          {activeTab === 'qibla' && <QiblaScreen />}
-          {activeTab === 'settings' && (
+          {activeTab === "today" && <TodayScreen prayerState={prayerState} />}
+          {activeTab === "qibla" && <QiblaScreen />}
+          {activeTab === "settings" && (
             <SettingsScreen prayerState={prayerState} />
           )}
         </View>
@@ -113,44 +109,41 @@ function TodayScreen({ prayerState }: { prayerState: PrayerState }) {
       <View style={styles.infoBand}>
         <Text style={styles.infoBandTitle}>Calculation</Text>
         <Text style={styles.infoBandText}>
-          {calculationMethodLabels[settings.calculationMethod]},{' '}
-          {asrMethodLabels[settings.asrMethod]} Asr,{' '}
-          {schedule.highLatitudeRule} for high-latitude days.
+          {calculationMethodLabels[settings.calculationMethod]},{" "}
+          {asrMethodLabels[settings.asrMethod]} Asr, {schedule.highLatitudeRule}{" "}
+          for high-latitude days.
         </Text>
       </View>
     </ScrollView>
   );
 }
 
-function getLocationStatusText(
-  status: LocationStatus,
-  source: LocationSource,
-) {
-  if (status === 'loading') {
-    return 'Updating location';
+function getLocationStatusText(status: LocationStatus, source: LocationSource) {
+  if (status === "loading") {
+    return "Updating location";
   }
 
-  if (status === 'permission-denied') {
-    return source === 'saved'
-      ? 'Using saved location; GPS permission denied'
-      : 'Using Copenhagen until GPS is allowed';
+  if (status === "permission-denied") {
+    return source === "saved"
+      ? "Using saved location; GPS permission denied"
+      : "Using Copenhagen until GPS is allowed";
   }
 
-  if (status === 'unavailable') {
-    return source === 'saved'
-      ? 'Using saved location; GPS unavailable'
-      : 'Using Copenhagen until GPS is available';
+  if (status === "unavailable") {
+    return source === "saved"
+      ? "Using saved location; GPS unavailable"
+      : "Using Copenhagen until GPS is available";
   }
 
-  if (source === 'saved') {
-    return 'Using saved location';
+  if (source === "saved") {
+    return "Using saved location";
   }
 
-  if (source === 'default') {
-    return 'Using Copenhagen preview location';
+  if (source === "default") {
+    return "Using Copenhagen preview location";
   }
 
-  return 'Using current location';
+  return "Using current location";
 }
 
 function PrayerTimeRow({
@@ -215,8 +208,10 @@ function SettingsScreen({ prayerState }: { prayerState: PrayerState }) {
     location,
     locationSource,
     locationStatus,
+    notificationStatus,
     refreshLocation,
     selectTestLocation,
+    sendTestNotification,
     settings,
     toggleNotifications,
     updateAsrMethod,
@@ -247,15 +242,15 @@ function SettingsScreen({ prayerState }: { prayerState: PrayerState }) {
           </View>
           <Pressable
             accessibilityRole="button"
-            disabled={locationStatus === 'loading'}
+            disabled={locationStatus === "loading"}
             onPress={refreshLocation}
             style={[
               styles.locationAction,
-              locationStatus === 'loading' && styles.locationActionDisabled,
+              locationStatus === "loading" && styles.locationActionDisabled,
             ]}
           >
             <Text style={styles.locationActionText}>
-              {locationStatus === 'loading' ? 'Updating' : 'GPS'}
+              {locationStatus === "loading" ? "Updating" : "GPS"}
             </Text>
           </Pressable>
         </View>
@@ -266,8 +261,8 @@ function SettingsScreen({ prayerState }: { prayerState: PrayerState }) {
       <View style={styles.locationPanel}>
         <Text style={styles.settingLabel}>Test locations</Text>
         <Text style={styles.settingDescription}>
-          Pick a saved city to preview very different prayer times without
-          using GPS.
+          Pick a saved city to preview very different prayer times without using
+          GPS.
         </Text>
         <View style={styles.testLocationList}>
           {TEST_LOCATIONS.map((testLocation) => {
@@ -301,7 +296,7 @@ function SettingsScreen({ prayerState }: { prayerState: PrayerState }) {
                     isSelected && styles.testLocationCoordinatesActive,
                   ]}
                 >
-                  {testLocation.latitude.toFixed(2)},{' '}
+                  {testLocation.latitude.toFixed(2)},{" "}
                   {testLocation.longitude.toFixed(2)}
                 </Text>
               </Pressable>
@@ -366,9 +361,10 @@ function SettingsScreen({ prayerState }: { prayerState: PrayerState }) {
         <View style={styles.settingRow}>
           <Text style={styles.settingLabel}>Notifications</Text>
           <Text style={styles.settingDescription}>
-            Preference is saved now. Scheduling reminders comes in the next
-            phase.
+            Local reminders are scheduled for today and refreshed when prayer
+            times or settings change.
           </Text>
+          <Text style={styles.notificationStatus}>{notificationStatus}</Text>
           <View style={styles.actionRow}>
             <Pressable
               accessibilityRole="button"
@@ -385,7 +381,7 @@ function SettingsScreen({ prayerState }: { prayerState: PrayerState }) {
                     styles.choiceButtonTextActive,
                 ]}
               >
-                {settings.notifications.enabled ? 'On' : 'Off'}
+                {settings.notifications.enabled ? "On" : "Off"}
               </Text>
             </Pressable>
             <View style={styles.inlineStepperGroup}>
@@ -398,6 +394,13 @@ function SettingsScreen({ prayerState }: { prayerState: PrayerState }) {
               />
             </View>
           </View>
+          <Pressable
+            accessibilityRole="button"
+            onPress={sendTestNotification}
+            style={styles.testNotificationButton}
+          >
+            <Text style={styles.testNotificationButtonText}>Test in 5s</Text>
+          </Pressable>
         </View>
       </View>
 
@@ -461,7 +464,7 @@ function OffsetControl({
 function StepperControl({
   label,
   onChange,
-  suffix = 'min',
+  suffix = "min",
   value,
 }: {
   label: string;
@@ -514,7 +517,9 @@ function TabBar({
             onPress={() => onSelectTab(tab.key)}
             style={[styles.tabButton, isActive && styles.tabButtonActive]}
           >
-            <View style={[styles.tabSymbol, isActive && styles.tabSymbolActive]}>
+            <View
+              style={[styles.tabSymbol, isActive && styles.tabSymbolActive]}
+            >
               <Text
                 style={[
                   styles.tabSymbolText,
@@ -551,12 +556,12 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xl,
   },
   centeredScreen: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   header: {
-    alignItems: 'flex-start',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: "flex-start",
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: spacing.lg,
   },
   headerTextGroup: {
@@ -566,7 +571,7 @@ const styles = StyleSheet.create({
   location: {
     color: colors.text,
     fontSize: typography.title,
-    fontWeight: '700',
+    fontWeight: "700",
     lineHeight: 36,
   },
   dateText: {
@@ -579,16 +584,16 @@ const styles = StyleSheet.create({
   hijriDateText: {
     color: colors.accentDeep,
     fontSize: typography.body,
-    fontWeight: '700',
+    fontWeight: "700",
     marginBottom: spacing.xs,
   },
   locationAction: {
-    alignItems: 'center',
+    alignItems: "center",
     backgroundColor: colors.surface,
     borderColor: colors.border,
     borderRadius: radii.full,
     borderWidth: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
     minHeight: 36,
     paddingHorizontal: spacing.md,
   },
@@ -598,7 +603,7 @@ const styles = StyleSheet.create({
   locationActionText: {
     color: colors.accentDeep,
     fontSize: typography.small,
-    fontWeight: '800',
+    fontWeight: "800",
   },
   nextPrayerPanel: {
     backgroundColor: colors.accent,
@@ -609,20 +614,20 @@ const styles = StyleSheet.create({
   eyebrow: {
     color: colors.onAccentMuted,
     fontSize: typography.small,
-    fontWeight: '700',
+    fontWeight: "700",
     letterSpacing: 0,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
   },
   nextPrayerRow: {
-    alignItems: 'flex-end',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: "flex-end",
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginTop: spacing.md,
   },
   nextPrayerName: {
     color: colors.onAccent,
     fontSize: typography.display,
-    fontWeight: '800',
+    fontWeight: "800",
   },
   countdown: {
     color: colors.onAccentMuted,
@@ -632,21 +637,21 @@ const styles = StyleSheet.create({
   nextPrayerTime: {
     color: colors.onAccent,
     fontSize: typography.heading,
-    fontWeight: '800',
+    fontWeight: "800",
   },
   prayerList: {
     backgroundColor: colors.surface,
     borderColor: colors.border,
     borderRadius: radii.lg,
     borderWidth: 1,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   prayerRow: {
-    alignItems: 'center',
+    alignItems: "center",
     borderBottomColor: colors.border,
     borderBottomWidth: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     minHeight: 68,
     paddingHorizontal: spacing.lg,
   },
@@ -654,8 +659,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.accentSoft,
   },
   prayerRowLabelGroup: {
-    alignItems: 'center',
-    flexDirection: 'row',
+    alignItems: "center",
+    flexDirection: "row",
     gap: spacing.sm,
   },
   prayerDot: {
@@ -670,7 +675,7 @@ const styles = StyleSheet.create({
   prayerName: {
     color: colors.text,
     fontSize: typography.body,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   prayerNameActive: {
     color: colors.accentDeep,
@@ -678,19 +683,19 @@ const styles = StyleSheet.create({
   prayerTime: {
     color: colors.text,
     fontSize: typography.body,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   prayerTimeActive: {
     color: colors.accentDeep,
   },
   qiblaHeader: {
-    alignSelf: 'stretch',
+    alignSelf: "stretch",
     marginBottom: spacing.xl,
   },
   screenTitle: {
     color: colors.text,
     fontSize: typography.title,
-    fontWeight: '800',
+    fontWeight: "800",
   },
   screenSubtitle: {
     color: colors.mutedText,
@@ -698,32 +703,32 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
   },
   compass: {
-    alignItems: 'center',
+    alignItems: "center",
     aspectRatio: 1,
     backgroundColor: colors.surface,
     borderColor: colors.border,
     borderRadius: 160,
     borderWidth: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
     maxWidth: 320,
-    position: 'relative',
-    width: '100%',
+    position: "relative",
+    width: "100%",
   },
   compassInner: {
-    alignItems: 'center',
+    alignItems: "center",
     backgroundColor: colors.background,
     borderColor: colors.border,
     borderRadius: 105,
     borderWidth: 1,
     height: 210,
-    justifyContent: 'center',
+    justifyContent: "center",
     width: 210,
   },
   compassLabel: {
     color: colors.mutedText,
     fontSize: typography.small,
-    fontWeight: '800',
-    position: 'absolute',
+    fontWeight: "800",
+    position: "absolute",
   },
   compassNorth: {
     top: spacing.lg,
@@ -740,22 +745,22 @@ const styles = StyleSheet.create({
   qiblaArrow: {
     borderBottomColor: colors.accent,
     borderBottomWidth: 128,
-    borderLeftColor: 'transparent',
+    borderLeftColor: "transparent",
     borderLeftWidth: 20,
-    borderRightColor: 'transparent',
+    borderRightColor: "transparent",
     borderRightWidth: 20,
     height: 0,
-    transform: [{ rotate: '121deg' }],
+    transform: [{ rotate: "121deg" }],
     width: 0,
   },
   qiblaDegrees: {
     color: colors.mutedText,
     fontSize: typography.small,
-    fontWeight: '700',
+    fontWeight: "700",
     marginTop: spacing.md,
   },
   infoBand: {
-    alignSelf: 'stretch',
+    alignSelf: "stretch",
     backgroundColor: colors.surfaceWarm,
     borderColor: colors.border,
     borderRadius: radii.md,
@@ -766,7 +771,7 @@ const styles = StyleSheet.create({
   infoBandTitle: {
     color: colors.text,
     fontSize: typography.body,
-    fontWeight: '800',
+    fontWeight: "800",
     marginBottom: spacing.xs,
   },
   infoBandText: {
@@ -779,7 +784,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderRadius: radii.lg,
     borderWidth: 1,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   locationPanel: {
     backgroundColor: colors.surface,
@@ -790,9 +795,9 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
   },
   locationPanelHeader: {
-    alignItems: 'flex-start',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: "flex-start",
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: spacing.md,
   },
   locationPanelTextGroup: {
@@ -802,7 +807,7 @@ const styles = StyleSheet.create({
   locationTimeZone: {
     color: colors.mutedText,
     fontSize: typography.small,
-    fontWeight: '700',
+    fontWeight: "700",
     marginTop: spacing.xs,
   },
   testLocationList: {
@@ -826,7 +831,7 @@ const styles = StyleSheet.create({
   testLocationLabel: {
     color: colors.text,
     fontSize: typography.body,
-    fontWeight: '800',
+    fontWeight: "800",
   },
   testLocationLabelActive: {
     color: colors.onAccent,
@@ -834,7 +839,7 @@ const styles = StyleSheet.create({
   testLocationCoordinates: {
     color: colors.mutedText,
     fontSize: typography.small,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   testLocationCoordinatesActive: {
     color: colors.onAccentMuted,
@@ -849,7 +854,7 @@ const styles = StyleSheet.create({
   settingLabel: {
     color: colors.text,
     fontSize: typography.body,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   settingDescription: {
     color: colors.mutedText,
@@ -860,24 +865,24 @@ const styles = StyleSheet.create({
   settingValue: {
     color: colors.accentDeep,
     fontSize: typography.body,
-    fontWeight: '800',
+    fontWeight: "800",
   },
   optionWrap: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: spacing.sm,
   },
   optionRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: spacing.sm,
   },
   choiceButton: {
-    alignItems: 'center',
+    alignItems: "center",
     backgroundColor: colors.background,
     borderColor: colors.border,
     borderRadius: radii.full,
     borderWidth: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
     minHeight: 36,
     paddingHorizontal: spacing.md,
   },
@@ -888,7 +893,7 @@ const styles = StyleSheet.create({
   choiceButtonText: {
     color: colors.mutedText,
     fontSize: typography.small,
-    fontWeight: '800',
+    fontWeight: "800",
   },
   choiceButtonTextActive: {
     color: colors.onAccent,
@@ -897,70 +902,91 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   offsetRow: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
     minHeight: 44,
   },
   offsetLabel: {
     color: colors.text,
     fontSize: typography.body,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   actionRow: {
-    alignItems: 'center',
-    flexDirection: 'row',
+    alignItems: "center",
+    flexDirection: "row",
     gap: spacing.md,
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
   },
   inlineStepperGroup: {
-    alignItems: 'flex-end',
+    alignItems: "flex-end",
     gap: spacing.xs,
   },
   inlineStepperLabel: {
     color: colors.mutedText,
     fontSize: typography.small,
-    fontWeight: '700',
+    fontWeight: "700",
+  },
+  notificationStatus: {
+    color: colors.mutedText,
+    fontSize: typography.small,
+    fontWeight: "700",
+    lineHeight: 18,
+  },
+  testNotificationButton: {
+    alignItems: "center",
+    backgroundColor: colors.accentSoft,
+    borderColor: colors.border,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    minHeight: 42,
+    justifyContent: "center",
+    paddingHorizontal: spacing.md,
+  },
+  testNotificationButtonText: {
+    color: colors.accentDeep,
+    fontSize: typography.body,
+    fontWeight: "800",
   },
   stepper: {
-    alignItems: 'center',
-    flexDirection: 'row',
+    alignItems: "center",
+    flexDirection: "row",
     gap: spacing.sm,
   },
   stepperButton: {
-    alignItems: 'center',
+    alignItems: "center",
     backgroundColor: colors.background,
     borderColor: colors.border,
     borderRadius: radii.full,
     borderWidth: 1,
     height: 32,
-    justifyContent: 'center',
+    justifyContent: "center",
     width: 32,
   },
   stepperButtonText: {
     color: colors.accentDeep,
     fontSize: typography.body,
-    fontWeight: '800',
+    fontWeight: "800",
   },
   stepperValue: {
     color: colors.accentDeep,
     fontSize: typography.small,
-    fontWeight: '800',
+    fontWeight: "800",
     minWidth: 56,
-    textAlign: 'center',
+    textAlign: "center",
   },
   tabBar: {
     backgroundColor: colors.surface,
     borderColor: colors.border,
     borderRadius: radii.lg,
     borderWidth: 1,
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: spacing.sm,
     margin: spacing.md,
     padding: spacing.sm,
   },
   tabButton: {
-    alignItems: 'center',
+    alignItems: "center",
     borderRadius: radii.md,
     flex: 1,
     gap: spacing.xs,
@@ -971,13 +997,13 @@ const styles = StyleSheet.create({
     backgroundColor: colors.accentSoft,
   },
   tabSymbol: {
-    alignItems: 'center',
+    alignItems: "center",
     backgroundColor: colors.background,
     borderColor: colors.border,
     borderRadius: radii.full,
     borderWidth: 1,
     height: 28,
-    justifyContent: 'center',
+    justifyContent: "center",
     width: 28,
   },
   tabSymbolActive: {
@@ -987,7 +1013,7 @@ const styles = StyleSheet.create({
   tabSymbolText: {
     color: colors.mutedText,
     fontSize: typography.small,
-    fontWeight: '800',
+    fontWeight: "800",
   },
   tabSymbolTextActive: {
     color: colors.onAccent,
@@ -995,7 +1021,7 @@ const styles = StyleSheet.create({
   tabLabel: {
     color: colors.mutedText,
     fontSize: typography.small,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   tabLabelActive: {
     color: colors.accentDeep,

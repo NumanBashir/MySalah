@@ -76,23 +76,27 @@ Goal: make the app reliable enough for daily use.
 - Test notifications after app restarts
 - Test Qibla outdoors and indoors
 
-## Phase 8: TestFlight Prep
+## Phase 8: Web/PWA Deployment
 
-Goal: prepare private distribution.
+Goal: deploy MySalah as a web app that can be added to the iPhone home screen.
 
-- App icon
-- Screenshots
-- Privacy details
-- Basic support contact
-- Internal tester feedback loop
+- Completed: add web app icon and manifest files
+- Completed: add Vercel config
+- Deploy to Vercel from GitHub
+- Test on iPhone Safari
+- Add to Home Screen
+- Test GPS on HTTPS
+- Decide later whether to add web notifications
 
 ## Other ideas later
 
 - Widgets for countdown and next prayer
 - Bottom navbar, make it smaller or somehow more sleek, it fills a lot I feel, maybe add icons instead of letters
-- Make Qibla arrow and compass better looking, and more smooth change when turning
+- Make Qibla arrow and compass better looking, and more smooth change when turning, maybe have like one arrow direction that is set already and do not move, and then another arrow for the direction ones head is pointing
 - Framer motion
 - UI/UX skill
 - Make the app more nice with animations, gradients, and texture that will make it feel more professional
 - Adhan sound for notification
 - Numan Bashir adhan sound
+
+Qibla compass: web/iPhone Safari compass support is different from native Expo. We would need a separate web compass implementation using browser motion/orientation APIs.

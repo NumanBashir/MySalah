@@ -1,6 +1,7 @@
 import { StatusBar } from "expo-status-bar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
+  Platform,
   Pressable,
   SafeAreaView,
   ScrollView,
@@ -40,9 +41,72 @@ const prayerLabels: Record<PrayerName, string> = {
   isha: "Isha",
 };
 
+const webHeadLinks = [
+  {
+    href: "/manifest.webmanifest",
+    id: "mysalah-web-manifest",
+    rel: "manifest",
+  },
+  {
+    href: "/apple-touch-icon.png",
+    id: "mysalah-apple-touch-icon",
+    rel: "apple-touch-icon",
+  },
+];
+
+const webHeadMeta = [
+  {
+    content: "yes",
+    id: "mysalah-apple-mobile-web-app-capable",
+    name: "apple-mobile-web-app-capable",
+  },
+  {
+    content: "MySalah",
+    id: "mysalah-apple-mobile-web-app-title",
+    name: "apple-mobile-web-app-title",
+  },
+  {
+    content: "default",
+    id: "mysalah-apple-mobile-web-app-status-bar-style",
+    name: "apple-mobile-web-app-status-bar-style",
+  },
+];
+
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>("today");
   const prayerState = usePrayerTimes();
+
+  useEffect(() => {
+    if (Platform.OS !== "web" || typeof document === "undefined") {
+      return;
+    }
+
+    webHeadLinks.forEach((item) => {
+      let link = document.getElementById(item.id) as HTMLLinkElement | null;
+
+      if (!link) {
+        link = document.createElement("link");
+        link.id = item.id;
+        document.head.appendChild(link);
+      }
+
+      link.href = item.href;
+      link.rel = item.rel;
+    });
+
+    webHeadMeta.forEach((item) => {
+      let meta = document.getElementById(item.id) as HTMLMetaElement | null;
+
+      if (!meta) {
+        meta = document.createElement("meta");
+        meta.id = item.id;
+        document.head.appendChild(meta);
+      }
+
+      meta.content = item.content;
+      meta.name = item.name;
+    });
+  }, []);
 
   return (
     <SafeAreaView style={styles.safeArea}>

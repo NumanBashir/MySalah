@@ -28,7 +28,23 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "backgroundColor": "#FAF8F3",
+      "barStyle": "default",
+      "description": "A calm personal prayer time app with Qibla direction.",
+      "display": "standalone",
+      "favicon": "./assets/favicon.png",
+      "lang": "en",
+      "name": "MySalah",
+      "orientation": "portrait",
+      "scope": "/",
+      "shortName": "MySalah",
+      "splash": {
+        "backgroundColor": "#FAF8F3",
+        "image": "./assets/splash-icon.png",
+        "resizeMode": "contain"
+      },
+      "startUrl": "/",
+      "themeColor": "#557568"
     }
   }
 }

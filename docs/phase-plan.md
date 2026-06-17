@@ -86,6 +86,7 @@ Goal: deploy MySalah as a web app that can be added to the iPhone home screen.
 - Test on iPhone Safari
 - Add to Home Screen
 - Test GPS on HTTPS
+- Completed: add web Qibla compass permission and orientation handling
 - Decide later whether to add web notifications
 
 ## Other ideas later
@@ -100,4 +101,17 @@ Goal: deploy MySalah as a web app that can be added to the iPhone home screen.
 - Numan Bashir adhan sound
 - Web App shows coordinates and not City
 
-Qibla compass: web/iPhone Safari compass support is different from native Expo. We would need a separate web compass implementation using browser motion/orientation APIs.
+LATER
+Preview Environment (Pre-production)
+Preview environments allow you to deploy and test changes in a live setting, without affecting your production site. By default, Vercel creates a preview deployment when you:
+
+Push a commit to a branch that is not your production branch (commonly main)
+Create a pull request (PR) on GitHub, GitLab, or Bitbucket
+Deploy using the CLI without the --prod flag, for example just vercel
+Each deployment gets an automatically generated URL, and you'll typically see links appear in your Git provider’s PR comments or in the Vercel Dashboard.
+
+There are two types of preview URLs:
+
+Branch-specific URL – Always points to the latest changes on that branch
+Commit-specific URL – Points to the exact deployment of that commit
+Learn more about generated URLs.

@@ -10,7 +10,7 @@ type HeadingState = {
   error: string | null;
   heading: number | null;
   isAvailable: boolean;
-  source: 'true' | 'magnetic' | null;
+  source: 'browser' | 'true' | 'magnetic' | null;
 };
 
 const initialHeadingState: HeadingState = {
@@ -160,9 +160,12 @@ export function useQibla(location: SavedLocation) {
   return {
     accuracy: headingState.accuracy,
     arrowRotation,
+    canRequestPermission: false,
     heading: headingState.heading,
     headingSource: headingState.source,
+    permissionStatus: 'granted' as const,
     qiblaAngle,
+    requestHeadingPermission: async () => undefined,
     statusText: getHeadingStatusText(headingState),
   };
 }

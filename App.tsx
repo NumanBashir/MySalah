@@ -240,12 +240,16 @@ function PrayerTimeRow({
 function QiblaScreen({ prayerState }: { prayerState: PrayerState }) {
   const { location } = prayerState;
   const qibla = useQibla(location);
+  const headingSourceLabel =
+    qibla.headingSource === "browser"
+      ? "browser"
+      : qibla.headingSource === "magnetic"
+        ? "magnetic"
+        : "true";
   const headingLabel =
     qibla.heading === null
       ? "Waiting"
-      : `${Math.round(qibla.heading)} deg ${
-          qibla.headingSource === "magnetic" ? "magnetic" : "true"
-        }`;
+      : `${Math.round(qibla.heading)} deg ${headingSourceLabel}`;
   const accuracyLabel =
     qibla.accuracy === null ? "Unknown" : `${qibla.accuracy}/3`;
 
@@ -287,6 +291,16 @@ function QiblaScreen({ prayerState }: { prayerState: PrayerState }) {
           <Text style={styles.qiblaReadoutValue}>{accuracyLabel}</Text>
         </View>
       </View>
+
+      {qibla.canRequestPermission && (
+        <Pressable
+          accessibilityRole="button"
+          onPress={qibla.requestHeadingPermission}
+          style={styles.qiblaPermissionButton}
+        >
+          <Text style={styles.qiblaPermissionButtonText}>Enable compass</Text>
+        </Pressable>
+      )}
 
       <View style={styles.infoBand}>
         <Text style={styles.infoBandTitle}>Sensor guidance</Text>
@@ -874,6 +888,21 @@ const styles = StyleSheet.create({
   },
   qiblaReadoutValue: {
     color: colors.text,
+    fontSize: typography.body,
+    fontWeight: "800",
+  },
+  qiblaPermissionButton: {
+    alignItems: "center",
+    alignSelf: "stretch",
+    backgroundColor: colors.accent,
+    borderRadius: radii.md,
+    marginTop: spacing.lg,
+    minHeight: 48,
+    justifyContent: "center",
+    paddingHorizontal: spacing.lg,
+  },
+  qiblaPermissionButtonText: {
+    color: colors.onAccent,
     fontSize: typography.body,
     fontWeight: "800",
   },

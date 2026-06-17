@@ -1,14 +1,11 @@
 import * as Location from 'expo-location';
 
+import { getFallbackLocationLabel } from './locationLabel';
 import type { SavedLocation } from '../types';
 
 type LocationResult =
   | { location: SavedLocation; status: 'granted' }
   | { status: 'denied' | 'unavailable' };
-
-function formatCoordinateLabel(latitude: number, longitude: number) {
-  return `${latitude.toFixed(3)}, ${longitude.toFixed(3)}`;
-}
 
 async function getLocationLabel(latitude: number, longitude: number) {
   try {
@@ -18,7 +15,7 @@ async function getLocationLabel(latitude: number, longitude: number) {
     });
 
     if (!place) {
-      return formatCoordinateLabel(latitude, longitude);
+      return getFallbackLocationLabel(latitude, longitude);
     }
 
     const city = place.city ?? place.subregion ?? place.region;
@@ -28,9 +25,9 @@ async function getLocationLabel(latitude: number, longitude: number) {
       return `${city}, ${country}`;
     }
 
-    return city ?? country ?? formatCoordinateLabel(latitude, longitude);
+    return city ?? country ?? getFallbackLocationLabel(latitude, longitude);
   } catch {
-    return formatCoordinateLabel(latitude, longitude);
+    return getFallbackLocationLabel(latitude, longitude);
   }
 }
 

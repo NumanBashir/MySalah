@@ -99,7 +99,7 @@ Goal: deploy MySalah as a web app that can be added to the iPhone home screen.
 - Make the app more nice with animations, gradients, and texture that will make it feel more professional
 - Adhan sound for notification
 - Numan Bashir adhan sound
-- Web App shows coordinates and not City
+- Completed: Web App shows a readable nearby city instead of raw coordinates when reverse geocoding is unavailable
 
 LATER
 Preview Environment (Pre-production)

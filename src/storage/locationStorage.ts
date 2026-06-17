@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { DEFAULT_LOCATION, TEST_LOCATIONS } from '../constants/location';
+import { normalizeLocationLabel } from '../services/locationLabel';
 import type { SavedLocation } from '../types';
 
 const LAST_LOCATION_KEY = 'mysalah:last-location';
@@ -30,13 +31,13 @@ function normalizeSavedLocation(location: SavedLocation): SavedLocation {
       Math.abs(testLocation.longitude - location.longitude) < 0.001,
   );
 
-  return {
+  return normalizeLocationLabel({
     ...location,
     timeZone:
       location.timeZone ??
       matchingTestLocation?.timeZone ??
       DEFAULT_LOCATION.timeZone,
-  };
+  });
 }
 
 export async function loadSavedLocation(): Promise<SavedLocation | null> {

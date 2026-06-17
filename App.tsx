@@ -17,6 +17,7 @@ import {
   calculationMethodLabels,
   calculationMethodOptions,
 } from "./src/constants/settings";
+import { VercelInsights } from "./src/components/VercelInsights";
 import { TEST_LOCATIONS } from "./src/constants/location";
 import { usePrayerTimes } from "./src/hooks/usePrayerTimes";
 import { useQibla } from "./src/hooks/useQibla";
@@ -121,6 +122,7 @@ export default function App() {
         </View>
         <TabBar activeTab={activeTab} onSelectTab={setActiveTab} />
       </View>
+      <VercelInsights />
     </SafeAreaView>
   );
 }

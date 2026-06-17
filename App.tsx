@@ -363,6 +363,11 @@ function SettingsScreen({ prayerState }: { prayerState: PrayerState }) {
         </View>
         <Text style={styles.settingValue}>{location.label}</Text>
         <Text style={styles.locationTimeZone}>{location.timeZone}</Text>
+        {Platform.OS === "web" && (
+          <Text style={styles.locationAttribution}>
+            Location names © OpenStreetMap contributors
+          </Text>
+        )}
       </View>
 
       <View style={styles.locationPanel}>
@@ -955,6 +960,11 @@ const styles = StyleSheet.create({
     color: colors.mutedText,
     fontSize: typography.small,
     fontWeight: "700",
+    marginTop: spacing.xs,
+  },
+  locationAttribution: {
+    color: colors.mutedText,
+    fontSize: typography.small,
     marginTop: spacing.xs,
   },
   testLocationList: {

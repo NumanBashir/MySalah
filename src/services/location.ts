@@ -1,6 +1,8 @@
 import * as Location from 'expo-location';
+import { Platform } from 'react-native';
 
 import { getFallbackLocationLabel } from './locationLabel';
+import { getWebReverseGeocodedLabel } from './webReverseGeocoding';
 import type { SavedLocation } from '../types';
 
 type LocationResult =
@@ -8,6 +10,13 @@ type LocationResult =
   | { status: 'denied' | 'unavailable' };
 
 async function getLocationLabel(latitude: number, longitude: number) {
+  if (Platform.OS === 'web') {
+    return (
+      (await getWebReverseGeocodedLabel(latitude, longitude)) ??
+      getFallbackLocationLabel(latitude, longitude)
+    );
+  }
+
   try {
     const [place] = await Location.reverseGeocodeAsync({
       latitude,

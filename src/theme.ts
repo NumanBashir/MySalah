@@ -1,16 +1,16 @@
 export const colors = {
-  accent: '#557568',
-  accentDeep: '#2F5045',
-  accentSoft: '#EAF1EA',
-  background: '#FAF8F3',
-  border: '#E7E0D4',
-  borderStrong: '#C9BDAA',
-  mutedText: '#827A6D',
-  onAccent: '#FFFFFF',
-  onAccentMuted: '#E8EFEA',
-  surface: '#FFFFFF',
-  surfaceWarm: '#F3EEE5',
-  text: '#2D2923',
+  accent: "#557568",
+  accentDeep: "#2F5045",
+  accentSoft: "#EAF1EA",
+  background: "#FAF8F3",
+  border: "#E7E0D4",
+  borderStrong: "#C9BDAA",
+  mutedText: "#827A6D",
+  onAccent: "#FFFFFF",
+  onAccentMuted: "#E8EFEA",
+  surface: "#FFFFFF",
+  surfaceWarm: "#F3EEE5",
+  text: "#2D2923",
 };
 
 export const spacing = {
@@ -30,7 +30,7 @@ export const radii = {
 export const typography = {
   small: 12,
   body: 16,
-  heading: 28,
+  heading: 24,
   title: 30,
   display: 40,
 };
